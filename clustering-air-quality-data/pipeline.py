@@ -1,11 +1,8 @@
 from params import BUCKET_NAME, PROJECT_ID
 from apache_beam.options.pipeline_options import PipelineOptions
 from apache_beam import Pipeline
-from apache_beam.io.textio import ReadFromText, WriteToText
 from apache_beam.options.pipeline_options import SetupOptions
 import argparse
-
-# os.environ[‘GOOGLE_APPLICATION_CREDENTIALS’] = “/home/annapooraniks/gcpdataflow/gcpdataflowkey.json”
 
 class MyOptions(PipelineOptions):
 
@@ -24,15 +21,7 @@ def get_pipeline():
     p = Pipeline(options=pipeline_options)
     return p
 
-if __name__ == "__main__":
-    p = get_pipeline()
-    small_sum = (
-           p 
-           | 'Read data' >> ReadFromText(f'gs://{BUCKET_NAME}/*.csv')
-           | 'Write data' >> WriteToText("raw_data/test.csv")
-          )
-    result = p.run()
-    result.wait_until_finish()
+
     
     
     
