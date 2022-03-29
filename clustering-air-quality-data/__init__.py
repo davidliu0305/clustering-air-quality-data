@@ -12,6 +12,7 @@ import apache_beam as beam
 from params import BUCKET_NAME, TABLE_SCHEMA
 from google.cloud import bigquery
 from datetime import datetime
+import re
 
 def __remove_special_characters(row):    
     import re
@@ -26,23 +27,26 @@ def __remove_special_characters(row):
 
 def __to_json(csv_str):
     fields = csv_str.split(',')
-    
+    #timestamp
     ts = datetime(int(fields[1]),int(fields[2]),int(fields[3]),int(fields[4]),0,0,0).strftime('%Y-%m-%d %H:%M:%S.%f')
+    
+    #regular expression for both int and floating numbers
+    regex = '^[+-]?((\d+(\.\d+)?)|(\.\d+))$'
     
     json_str = { 
                  "timestamp": ts,
-                 "pm25": float(fields[5]) if str(fields[5]).strip('-').isnumeric() else None,
-                 "pm10": float(fields[6]) if str(fields[6]).strip('-').isnumeric() else None,
-                 "so2": float(fields[7]) if str(fields[7]).strip('-').isnumeric() else None,
-                 "no2": float(fields[8]) if str(fields[8]).strip('-').isnumeric() else None,
-                 "co": float(fields[9]) if str(fields[9]).strip('-').isnumeric() else None,
-                 "o3": float(fields[10]) if str(fields[10]).strip('-').isnumeric() else None,
-                 "temp": float(fields[11]) if str(fields[11]).strip('-').isnumeric() else None,
-                 "pres": float(fields[12]) if str(fields[12]).strip('-').isnumeric() else None,
-                 "dewp": float(fields[13]) if str(fields[13]).strip('-').isnumeric() else None,
-                 "rain": float(fields[14]) if str(fields[14]).strip('-').isnumeric() else None,
+                 "pm25": float(fields[5]) if re.search(regex, fields[5]) else None,
+                 "pm10": float(fields[6]) if re.search(regex, fields[6]) else None,
+                 "so2": float(fields[7]) if re.search(regex, fields[7]) else None,
+                 "no2": float(fields[8]) if re.search(regex, fields[8]) else None,
+                 "co": float(fields[9]) if re.search(regex, fields[9]) else None,
+                 "o3": float(fields[10]) if re.search(regex, fields[10]) else None,
+                 "temp": float(fields[11]) if re.search(regex, fields[11]) else None,
+                 "pres": float(fields[12]) if re.search(regex, fields[12]) else None,
+                 "dewp": float(fields[13]) if re.search(regex, fields[13]) else None,
+                 "rain": float(fields[14]) if re.search(regex, fields[14]) else None,
                  "wd":str(fields[15]) if str(fields[15]) != 'NA' else None,
-                 "wpsm":float(fields[16]) if str(fields[16]).strip('-').isnumeric() else None,
+                 "wpsm":float(fields[16]) if re.search(regex, fields[16]) else None,
                  "station": str(fields[17]) if str(fields[17]) != 'NA' else None
                  }
 
