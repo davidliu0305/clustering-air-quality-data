@@ -11,8 +11,8 @@ class MyOptions(PipelineOptions):
     parser = argparse.ArgumentParser()
     parser.add_argument('--runner', default='dataflow')
     parser.add_argument('--project', default=PROJECT_ID)
-    parser.add_argument('--temp_location', default=f"gs://{BUCKET_NAME}/temp")
-    parser.add_argument('--staging_location', default=f"gs://{BUCKET_NAME}/staging")
+    parser.add_argument('--temp_location', default=f"gs://{BUCKET_NAME}/temp/")
+    parser.add_argument('--staging_location', default=f"gs://{BUCKET_NAME}/staging/")
     parser.add_argument('--region', default='us-central1')
 
 def get_pipeline():
