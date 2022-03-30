@@ -31,13 +31,13 @@ data = [
 #convert to tuple for a day
 def convert_to_tuple(element):
     return (element['timestamp_local'].split('T')[0],{
-        "aqi": element['aqi']/len(data),
-        "pm10": element['pm10']/len(data),
-        "pm25": element['pm25']/len(data),
-        "o3": element['o3']/len(data),
-        "so2": element['so2']/len(data),
-        "no2": element['no2']/len(data),
-        "co": element['co']/len(data)
+        "aqi": element['aqi'],
+        "pm10": element['pm10'],
+        "pm25": element['pm25'],
+        "o3": element['o3'],
+        "so2": element['so2'],
+        "no2": element['no2'],
+        "co": element['co']
         })
 
 class MergeDictCombineFn(beam.CombineFn):
@@ -57,8 +57,8 @@ class MergeDictCombineFn(beam.CombineFn):
     def add_input(self, accumulator, element, *args, **kwargs):
         return self._sum_up(elements=[element], accumulator=accumulator)
 
-    def add_inputs(self, accumulator, elements, *args, **kwargs):
-        return self._sum_up(elements=elements, accumulator=accumulator)
+    # def add_inputs(self, accumulator, elements, *args, **kwargs):
+    #     return self._sum_up(elements=elements, accumulator=accumulator)
 
     def merge_accumulators(self, accumulators, *args, **kwargs):
         return self._sum_up(elements=accumulators)

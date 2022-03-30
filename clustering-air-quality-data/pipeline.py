@@ -1,5 +1,5 @@
 from params import BUCKET_NAME, PROJECT_ID
-from apache_beam.options.pipeline_options import PipelineOptions
+from apache_beam.options.pipeline_options import PipelineOptions, StandardOptions
 from apache_beam import Pipeline
 from apache_beam.options.pipeline_options import SetupOptions
 import argparse
@@ -15,9 +15,12 @@ class MyOptions(PipelineOptions):
     parser.add_argument('--staging_location', default=f"gs://{BUCKET_NAME}/staging/")
     parser.add_argument('--region', default='us-central1')
 
-def get_pipeline():
+def get_pipeline(used_by_streaming=False):
     pipeline_options = PipelineOptions().view_as(MyOptions)
     pipeline_options.view_as(SetupOptions).save_main_session = True
+    if used_by_streaming:
+        pipeline_options.view_as(StandardOptions).streaming = True
+        pipeline_options.view_as(SetupOptions).save_main_session = False
     p = Pipeline(options=pipeline_options)
     return p
 

@@ -19,7 +19,6 @@ if __name__ == "__main__":
     
      # loop over each record
     for record in data:
-        event_data = record   # entire line of input CSV is the message
-        print('Publishing {0} to {1}'.format(event_data, pubsub_topic))
-      #   publisher.publish(pubsub_topic, event_data)
+        event_data = str(record).encode('utf-8')
+        publisher.publish(pubsub_topic, event_data)
         time.sleep(1) 
