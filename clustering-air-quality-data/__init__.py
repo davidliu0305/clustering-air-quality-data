@@ -52,7 +52,8 @@ def __to_json(csv_str):
 
     return json_str
 
-def __run():
+#extract data from bucket
+def __run_bucket():
     p = get_pipeline()
     client = bigquery.Client()
     dataset_id = "clustering-air-quality-data.air_quality_data"
@@ -77,7 +78,11 @@ def __run():
           )
     result = p.run()
     result.wait_until_finish()
-
+    
+    
+#extract data from api
+def __run_api():
+    pass
 
 if __name__ == "__main__":
-    __run()
+    __run_bucket()
