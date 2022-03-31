@@ -15,10 +15,10 @@ if __name__ == "__main__":
     publisher = pubsub_v1.PublisherClient()
     
     
-    data = get_AQ_data()
+    data = get_AQ_data(start_date='2022-03-01',end_date='2022-03-10')
     
      # loop over each record
     for record in data:
         event_data = str(record).encode('utf-8')
         publisher.publish(pubsub_topic, event_data)
-        time.sleep(1) 
+        time.sleep(0.5) 

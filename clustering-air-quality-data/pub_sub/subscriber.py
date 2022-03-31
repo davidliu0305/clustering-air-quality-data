@@ -1,7 +1,7 @@
 import apache_beam as beam
 from pipeline import get_pipeline
 from google.cloud import bigquery
-from params import PROJECT_ID
+from params import PROJECT_ID,TABLE_SCHEMA_API,BUCKET_NAME
 import json
 from apache_beam.transforms.trigger import AccumulationMode, AfterCount,Repeatedly
 
@@ -13,14 +13,17 @@ def __decode_string(element):
 
 def __convert_to_tuple(element):
     return (element['timestamp_local'].split('T')[0],{
-        "aqi": element['aqi']/24,
-        "pm10": element['pm10']/24,
-        "pm25": element['pm25']/24,
-        "o3": element['o3']/24,
-        "so2": element['so2']/24,
-        "no2": element['no2']/24,
-        "co": element['co']/24,
+        "date":str(element['timestamp_local'].split('T')[0]),
+        "aqi": float(element['aqi']/24),
+        "pm10": float(element['pm10']/24),
+        "pm25": float(element['pm25']/24),
+        "o3": float(element['o3']/24),
+        "so2": float(element['so2']/24),
+        "no2": float(element['no2']/24),
+        "co": float(element['co']/24),
         })
+def __get_final_data(element):
+    return element[1]    
 
 class MergeDictCombineFn(beam.CombineFn):
 
@@ -30,7 +33,10 @@ class MergeDictCombineFn(beam.CombineFn):
             for k, v in obj.items():
                 if k not in accumulator:
                     accumulator[k] = 0
-                accumulator[k] += float(v)
+                if k != 'date':    
+                    accumulator[k] += float(v)
+                else:
+                    accumulator[k] = v    
         return accumulator
 
     def create_accumulator(self):
@@ -62,7 +68,12 @@ if __name__ == "__main__":
            | 'Window' >> beam.WindowInto(beam.window.GlobalWindows(), \
                trigger=Repeatedly(AfterCount(24)), accumulation_mode=AccumulationMode.DISCARDING)
            | 'final results' >> beam.CombinePerKey(MergeDictCombineFn())
-           | 'beam results' >> beam.Map(print)
+           | 'beam results' >> beam.Map(__get_final_data)
+           | 'Write to BigQuery' >> beam.io.WriteToBigQuery(schema=TABLE_SCHEMA_API,
+                    table='clustering-air-quality-data:air_quality_data.measurement_API',
+                    custom_gcs_temp_location=f"gs://{BUCKET_NAME}/temp/",                                        
+                    create_disposition=beam.io.BigQueryDisposition.CREATE_IF_NEEDED,
+                    write_disposition=beam.io.BigQueryDisposition.WRITE_APPEND) 
         )    
     result = p.run()
     result.wait_until_finish()
